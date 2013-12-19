@@ -8,6 +8,7 @@
 // Includes I didn't make myself
 
  // Includes I did make myself
+#include "Field.hpp"
 #include "Gamestate.hpp"
 
 class Game : public GameState {
@@ -20,7 +21,7 @@ public:
     int render(sf::RenderWindow& window);
 
 private:
-
+	Field field;
 };
 
 #endif

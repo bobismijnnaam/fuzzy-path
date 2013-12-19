@@ -5,10 +5,11 @@
 // Includes I didn't make myself 
 
  // Includes I did make myself 
+#include "Field.hpp"
 #include "Game.hpp" 
 #include "globals.hpp"
 
-Game::Game() {
+Game::Game() : field(sf::Vector2i(10, 10)) {
 
 }
 
@@ -23,17 +24,25 @@ int Game::events(sf::RenderWindow& window) {
         if (event.type == sf::Event::Closed) {
             gm->setNextState(STATE_EXIT);
         }
+
+        field.events(event, window);
 	}
 	
 	return 0;
 }
 
 int Game::logic(sf::RenderWindow& window) {
+	field.logic(window);
 
 	return 0;
 }
 
 int Game::render(sf::RenderWindow& window) {
+	window.clear(sf::Color(255, 255, 255, 255));
+
+	window.draw(field);
+
+	window.display();
 
 	return 0;
 }
