@@ -9,7 +9,7 @@
 #include "Game.hpp" 
 #include "globals.hpp"
 
-Game::Game() : field(sf::Vector2i(10, 10)) {
+Game::Game() : field(sf::Vector2i(10, 10), InputMethod::Mouse) {
 
 }
 
