@@ -38,7 +38,7 @@ int Game::logic(sf::RenderWindow& window) {
 }
 
 int Game::render(sf::RenderWindow& window) {
-	window.clear(sf::Color(255, 255, 255, 255));
+	window.clear(sf::Color(28, 144, 184, 255));
 
 	window.draw(field);
 
