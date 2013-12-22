@@ -11,10 +11,14 @@
  // Includes I did make myself
 #include "Square.hpp"
 
+enum class InputMethod {
+	Keyboard,
+	Mouse
+} ;
 
 class Field : public sf::Drawable {
 public:
-	Field(sf::Vector2i inputSize);
+	Field(sf::Vector2i inputSize, InputMethod preferredInputMethod);
 	~Field();
 
 	void events(sf::Event event, sf::RenderWindow& window);
@@ -33,6 +37,10 @@ private:
 
 	sf::Vector2i pointer;
 	bool newPointer;
+	
+	InputMethod inputMethod;
+
+	sf::View fieldView;
 };
 
 #endif
