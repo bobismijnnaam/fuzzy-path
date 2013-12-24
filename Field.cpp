@@ -25,14 +25,11 @@ Field::Field(sf::Vector2i inputSize, InputMethod preferredMethod) :
 
 	inputMethod = preferredMethod;
 
-	pointer.x = 0;
-	pointer.y = 0;
-	previousPointer = pointer;
 	pointerChanged = false;
 
 	fieldView.setViewport(sf::FloatRect(0.125f, 0.125f, 0.75f, 0.75f));
 
-	state = FieldState::Idle;
+	state = FieldState::Idling;
 }
 
 Field::~Field() {
@@ -46,54 +43,99 @@ void Field::events(sf::Event event, sf::RenderWindow& window) {
 		}
 	}
 
+	sf::Vector2i tp;
+
 	switch (inputMethod) {
 		case InputMethod::Keyboard:
 			// TODO
 			break;
 		case InputMethod::Mouse:
 			if (event.type == sf::Event::MouseMoved) {
-				pointerChanged = true;
+				switch (state) {
+					case FieldState::Drawing:
+						tp = sf::Vector2i(event.mouseMove.x, event.mouseMove.y);
+						tp = sf::Vector2i(window.mapPixelToCoords(tp, fieldView));
 
-				newPointer.x = event.mouseMove.x;
-				newPointer.y = event.mouseMove.y;
+						if (!(inRange(tp.x, 0, SQUARE_SIDE * size.x) && inRange(tp.y, 0, SQUARE_SIDE * size.y))) {
+							state = FieldState::Committing;
+						} else {
+							tp.x = floor(tp.x / (float)SQUARE_SIDE);
+							tp.y = floor(tp.y / (float)SQUARE_SIDE);
+							// TODO: Make sure that you can't travel over a point that you have passed,
+							// Unless it is the previous point (that should be added to the list)
+							if (tp != points.at(points.size() - 1)) {
+								pointerChanged = true;
+								points.push_back(tp);
+							}
+						}
+						break;
+					default:
+						break;
+				}
 
-				newPointer = sf::Vector2i(window.mapPixelToCoords(newPointer, fieldView));
-
-				newPointer.x = floor(newPointer.x / (float)SQUARE_SIDE);
-				newPointer.y = floor(newPointer.y / (float)SQUARE_SIDE);
-
-				// std::cout << pointer.x << " | " << pointer.y << "\n";
+				// std::cout << "Mousemove\n";
 			} else if (event.type == sf::Event::MouseButtonPressed) {
 				if (event.mouseButton.button == sf::Mouse::Button::Left) {
-					if (inRange(pointer.x, 0, size.x) && inRange(pointer.y, 0, size.y)) {
+					tp = sf::Vector2i(event.mouseButton.x, event.mouseButton.y);
+					tp = sf::Vector2i(window.mapPixelToCoords(tp, fieldView));
+
+					std::cout << event.mouseButton.x << " | " << event.mouseButton.y << ";\n";
+					std::cout << tp.x << " | " << tp.y << ";\n";
+
+					if (inRange(tp.x, 0, SQUARE_SIDE * size.x) && inRange(tp.y, 0, SQUARE_SIDE * size.y)) {
 						state = FieldState::Drawing;
-						squareField.at(pointer.x).at(pointer.y).stage();
-						chain.push(sf::Vector2f(pointer) + sf::Vector2f(SQUARE_SIDE / 2, SQUARE_SIDE / 2), squareField.at(pointer.x).at(pointer.y).getRgbColor());
-					}
+						pointerChanged = true;
+
+						points.push_back( sf::Vector2i( floor( tp.x / (float)SQUARE_SIDE ), floor( tp.y / (float)SQUARE_SIDE ) ) );
+
+						std::cout << "Drawing started!\n";
 				}
 			} else if (event.type == sf::Event::MouseButtonReleased) {
 				if (event.mouseButton.button == sf::Mouse::Button::Left) {
-					// TODO
-					state = FieldState::Idle;	
+					state = FieldState::Committing;
 				}
 			}
 			break;
+		}
 	}
 }
 
 void Field::logic(sf::RenderWindow& window) {
 	switch (state) {
-		case FieldState::Idle:
+		case FieldState::Idling:
 			// Would be suprised if there would be code here...
 			break;
 		case FieldState::Drawing:
+			// TODO: Handle diagonal line drawing. Yes, it happens! T_T
 			if (pointerChanged) {
 				pointerChanged = false;
-				chain.push(sf::Vector2f(newPointer * SQUARE_SIDE) + sf::Vector2f(SQUARE_SIDE / 2, SQUARE_SIDE / 2), squareField.at(newPointer.x).at(newPointer.y).getRgbColor());
-
-				previousPointer = pointer;
-				pointer = newPointer;
+				if (points.size() < 3) {
+					sf::Vector2i p = points.at(points.size() - 1);
+					chain.push(sf::Vector2f(p * SQUARE_SIDE) + sf::Vector2f(SQUARE_SIDE / 2, SQUARE_SIDE / 2), squareField.at(p.x).at(p.y).getRgbColor());
+					squareField.at(p.x).at(p.y).stage();
+				} else {
+					int i = points.size() - 1;
+					
+					if (points.at(i) == points.at(i - 2)) {
+						// Player took a step back
+						squareField.at(points.at(i - 1).x).at(points.at(i - 1).y).remove();
+						chain.pop();
+						points.pop_back();
+						points.pop_back();
+					} else {
+						// Player advanced one step
+						sf::Vector2i p = points.at(points.size() - 1);
+						chain.push(sf::Vector2f(p * SQUARE_SIDE) + sf::Vector2f(SQUARE_SIDE / 2, SQUARE_SIDE / 2), squareField.at(p.x).at(p.y).getRgbColor());
+						squareField.at(p.x).at(p.y).stage();
+					}
+				}
 			}
+			break;
+		case FieldState::Committing:
+			// TODO: Make committing a trajectory possible
+			break;
+		default:
+			std::cout << "Invalid state @ Field::logic()\n";
 			break;
 	}
 
@@ -114,10 +156,12 @@ void Field::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 		}
 	}
 
+	/*
 	sf::RectangleShape pointerPlace(sf::Vector2f(SQUARE_SIDE, SQUARE_SIDE));
 	pointerPlace.setPosition(sf::Vector2f(pointer * SQUARE_SIDE));
 	pointerPlace.setFillColor(sf::Color::Red);
 	target.draw(pointerPlace, states);
+	*/
 
 	target.draw(chain, states);
 

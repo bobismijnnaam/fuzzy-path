@@ -45,10 +45,12 @@ void Square::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 			squareShape.setFillColor(rgbColor);
 			break;
 		case SquareColor::UpperGrey:
-			squareShape.setFillColor(sf::Color(235, 235, 235, 255));
+			// squareShape.setFillColor(sf::Color(235, 235, 235, 255));
+			squareShape.setFillColor(rgbColor);
 			break;
 		case SquareColor::LowerGrey:
-			squareShape.setFillColor(sf::Color(85, 85, 85, 255));
+			// squareShape.setFillColor(sf::Color(85, 85, 85, 255));
+			squareShape.setFillColor(rgbColor);
 			break;
 		default:
 			squareShape.setFillColor(sf::Color(255,20,147, 255));

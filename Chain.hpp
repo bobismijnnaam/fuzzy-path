@@ -21,7 +21,9 @@ public:
 
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
-	int getTrajectoryScore();
+	int getChainScore();
+	int getChainLength();
+	int getArrayLength();
 
 private:
 	std::vector<sf::Vertex> points;

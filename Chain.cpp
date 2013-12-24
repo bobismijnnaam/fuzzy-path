@@ -49,6 +49,19 @@ void Chain::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 	}
 }
 
-int Chain::getTrajectoryScore() {
+int Chain::getChainScore() {
+	
 	return 0;
+}
+
+int Chain::getChainLength() {
+	if (points.size() <= 1) {
+		return 0;
+	} else {
+		return points.size() / 2;
+	}
+}
+
+int Chain::getArrayLength() {
+	return points.size();
 }

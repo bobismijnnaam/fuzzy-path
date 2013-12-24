@@ -18,8 +18,9 @@ enum class InputMethod {
 } ;
 
 enum class FieldState {
-	Idle,
-	Drawing
+	Idling,
+	Drawing,
+	Committing
 } ;
 
 class Field : public sf::Drawable {
@@ -43,9 +44,7 @@ private:
 	sf::Vector2i size;
 	std::vector<std::vector<Square>> squareField;
 
-	sf::Vector2i pointer;
-	sf::Vector2i previousPointer;
-	sf::Vector2i newPointer;
+	std::vector<sf::Vector2i> points;
 	bool pointerChanged;
 
 	Chain chain;
