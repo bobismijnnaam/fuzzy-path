@@ -9,11 +9,17 @@
 #include <vector>
 
  // Includes I did make myself
+#include "Chain.hpp"
 #include "Square.hpp"
 
 enum class InputMethod {
 	Keyboard,
 	Mouse
+} ;
+
+enum class FieldState {
+	Idle,
+	Drawing
 } ;
 
 class Field : public sf::Drawable {
@@ -31,16 +37,27 @@ public:
 	int getRemainingBlack();
 	int getRemainingWhite();
 
+	FieldState getState();
+
 private:
 	sf::Vector2i size;
 	std::vector<std::vector<Square>> squareField;
 
 	sf::Vector2i pointer;
-	bool newPointer;
+	sf::Vector2i previousPointer;
+	sf::Vector2i newPointer;
+	bool pointerChanged;
+
+	Chain chain;
 	
 	InputMethod inputMethod;
 
 	sf::View fieldView;
+
+	FieldState state;
+
+	int whites;
+	int blacks;
 };
 
 #endif

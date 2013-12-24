@@ -12,7 +12,9 @@
 
 enum class SquareColor {
 	Black,
-	White
+	White,
+	LowerGrey,
+	UpperGrey
 } ;
 
 enum class SquareState {
@@ -35,11 +37,13 @@ public:
 
 	SquareState getState();
 	SquareColor getColor();
+	sf::Color getRgbColor();
 
 private:
 	SquareColor color;
 	SquareState state;
 	sf::Vector2i position;
+	sf::Color rgbColor;
 };
 
 #endif
