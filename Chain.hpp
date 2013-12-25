@@ -31,7 +31,6 @@ public:
 	void logic();
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
-	int getChainScore();
 	int getChainLength();
 	std::vector<sf::Vector2i> getChain();
 	int getArrayLength();

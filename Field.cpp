@@ -10,6 +10,7 @@
 #include "constants.hpp"
 #include "functions.hpp"
 #include "Field.hpp"
+#include "Randomizer.hpp"
 
 Field::Field(sf::Vector2i inputSize, InputMethod preferredMethod) : 
 	fieldView(sf::FloatRect(0, 0, inputSize.x * SQUARE_SIDE, inputSize.y * SQUARE_SIDE)) {
@@ -30,6 +31,10 @@ Field::Field(sf::Vector2i inputSize, InputMethod preferredMethod) :
 	fieldView.setViewport(sf::FloatRect(0.125f, 0.125f, 0.75f, 0.75f));
 
 	state = FieldState::Idling;
+
+	whites = 100;
+	blacks = 100;
+	total = 0;
 }
 
 Field::~Field() {
@@ -98,19 +103,61 @@ void Field::events(sf::Event event, sf::RenderWindow& window) {
 }
 
 void Field::logic(sf::RenderWindow& window) {
+	std::vector<sf::Vector2i> pointChain;
+	int subtotal = 0;
+	SquareColor previousColor, tc;
+
 	switch (state) {
 		case FieldState::Idling:
 			// Would be suprised if there would be code here...
 			break;
 		case FieldState::Drawing:
 			// There should be some code here though!
+
+
+
+			// Naaah.
 			break;
 		case FieldState::Committing:
-			// TODO: Score
+			pointChain = chain.getChain();
+			if (pointChain.size() > 1) {
+				subtotal = 1;
+				
+				previousColor = at(pointChain.at(0)).getNormalizedColor();
+				for (uint32_t i = 1; i < pointChain.size(); ++i) {
+					if (previousColor != at(pointChain.at(i)).getNormalizedColor()) {
+						subtotal += i + 1;
+						previousColor = at(pointChain.at(i)).getNormalizedColor();
+					} else {
+						subtotal -= i + 1;
+					}
+
+					if (blacks == 0 && whites == 0) {
+						// GAME ENDS B*TCH
+					} else if (blacks == 0) {
+						tc = SquareColor::White;
+						--whites;
+					} else if (whites == 0) {
+						tc = SquareColor::Black;
+						--blacks;
+					} else if (Randomizer::getRange(0, 1)) {
+						tc = SquareColor::White;
+						whites--;
+					} else {
+						tc = SquareColor::Black;
+						blacks--;
+					}	
+					
+					at(pointChain.at(i)).commit(tc);
+				}
+
+				total += subtotal;
+			}
 
 			chain.commit();
 			state = FieldState::Idling;
-			std::cout << "Committing done\n";
+			
+			std::cout << "Score: " << total << " | Subtotal = " << subtotal << " | w/b = " << whites << "/" << blacks << "\n";
 			break;
 		default:
 			std::cout << "Invalid state @ Field::logic()\n";
@@ -159,6 +206,10 @@ int Field::getRemainingBlack() {
 
 int Field::getRemainingWhite() {
 	return 0;
+}
+
+Square& Field::at(sf::Vector2i p) {
+	return squareField.at(p.x).at(p.y);
 }
 
 FieldState Field::getState() {

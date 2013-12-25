@@ -20,6 +20,8 @@ Square::Square(sf::Vector2i inputPosition) {
 		color = SquareColor::Black;
 		rgbColor = sf::Color(0, 0, 0, 255);
 	}
+
+	state = SquareState::Usable;
 }
 
 Square::~Square() {
@@ -73,6 +75,8 @@ void Square::stage() {
 			std::cout << "Error @ Square::stage(): Square was not in binary (black/white) state";
 			break;
 	}
+
+	state = SquareState::Used;
 }
 
 void Square::remove() {
@@ -87,18 +91,44 @@ void Square::remove() {
 			std::cout << "Error @ Square::remove(): Square was not in float (upper/lower grey) state";
 			break;
 	}
+
+	state = SquareState::Usable;
 }
 
 void Square::commit(SquareColor newColor) {
+	color = newColor;
 
+	switch (color) {
+		case SquareColor::White:
+			rgbColor = sf::Color::White;
+			break;
+		case SquareColor::Black:
+			rgbColor = sf::Color::Black;
+			break;
+	}
+
+	state = SquareState::Usable;
 }
 
 SquareState Square::getState() {
-	return SquareState::Usable;
+	return state;
 }
 
 SquareColor Square::getColor() {
-	return SquareColor::Black;
+	return color;
+}
+
+SquareColor Square::getNormalizedColor() {
+	switch (color) {
+		case SquareColor::White:
+		case SquareColor::UpperGrey:
+			return SquareColor::White;
+			break;
+		case SquareColor::Black:
+		case SquareColor::LowerGrey:
+			return SquareColor::Black;
+			break;
+	}
 }
 
 sf::Color Square::getRgbColor() {

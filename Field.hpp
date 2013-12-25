@@ -38,6 +38,8 @@ public:
 	int getRemainingBlack();
 	int getRemainingWhite();
 
+	Square& at(sf::Vector2i p);
+
 	FieldState getState();
 
 private:
@@ -57,6 +59,7 @@ private:
 
 	int whites;
 	int blacks;
+	int total;
 };
 
 #endif

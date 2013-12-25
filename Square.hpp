@@ -37,6 +37,7 @@ public:
 
 	SquareState getState();
 	SquareColor getColor();
+	SquareColor getNormalizedColor();
 	sf::Color getRgbColor();
 
 private:
