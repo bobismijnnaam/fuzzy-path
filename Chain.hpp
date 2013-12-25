@@ -10,6 +10,12 @@
 
  // Includes I did make myself
 
+enum class QueueMessage {
+	Success,
+	Rewind,
+	Violation,
+	Failure
+} ;
 
 class Chain : public sf::Drawable {
 public:
@@ -19,14 +25,18 @@ public:
 	void push(sf::Vector2f point, sf::Color pointColor);
 	void push(sf::Vertex point);
 	void pop();
-	bool queue(sf::Vector2f point, sf::Color pointColor);
+	QueueMessage queue(sf::Vector2f point, sf::Color pointColor);
+	void commit();
 
 	void logic();
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
 	int getChainScore();
 	int getChainLength();
+	std::vector<sf::Vector2i> getChain();
 	int getArrayLength();
+
+	bool containsPoint(sf::Vector2i testPoint);
 
 private:
 	std::vector<sf::Vertex> points;

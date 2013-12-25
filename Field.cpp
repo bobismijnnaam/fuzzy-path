@@ -62,85 +62,55 @@ void Field::events(sf::Event event, sf::RenderWindow& window) {
 							tp.x = floor(tp.x / (float)SQUARE_SIDE) * SQUARE_SIDE + SQUARE_SIDE / 2;
 							tp.y = floor(tp.y / (float)SQUARE_SIDE) * SQUARE_SIDE + SQUARE_SIDE / 2;
 
-							chain.queue(sf::Vector2f(tp), squareField.at(tp.x / SQUARE_SIDE).at(tp.y / SQUARE_SIDE).getRgbColor());
-							
-							// if (tp != points.at(points.size() - 1)) {
-							// 	pointerChanged = true;
-							// 	points.push_back(tp);
-							// }
+							if (chain.queue(sf::Vector2f(tp), squareField.at(tp.x / SQUARE_SIDE).at(tp.y / SQUARE_SIDE).getRgbColor()) == QueueMessage::Violation) {
+								state = FieldState::Committing;
+							}
 						}
 						break;
 					default:
 						break;
 				}
-
-				// std::cout << "Mousemove\n";
 			} else if (event.type == sf::Event::MouseButtonPressed) {
-				if (event.mouseButton.button == sf::Mouse::Button::Left) {
-					tp = sf::Vector2i(event.mouseButton.x, event.mouseButton.y);	
+				if (event.mouseButton.button == sf::Mouse::Left) {
+					tp = sf::Vector2i(event.mouseButton.x, event.mouseButton.y);
 					tp = sf::Vector2i(window.mapPixelToCoords(tp, fieldView));
 
-					std::cout << event.mouseButton.x << " | " << event.mouseButton.y << ";\n";
-					std::cout << tp.x << " | " << tp.y << ";\n";
-
-					if (inRange(tp.x, 0, SQUARE_SIDE * size.x) && inRange(tp.y, 0, SQUARE_SIDE * size.y)) {
+					if (inRange(tp.x, 0, SQUARE_SIDE * size.x) && inRange(tp.y, 0, SQUARE_SIDE * size.y) && state == FieldState::Idling) {
 						state = FieldState::Drawing;
-						// pointerChanged = true;
-
-						// points.push_back( sf::Vector2i( floor( tp.x / (float)SQUARE_SIDE ), floor( tp.y / (float)SQUARE_SIDE ) ) );
 
 						tp.x = floor(tp.x / (float)SQUARE_SIDE) * SQUARE_SIDE + SQUARE_SIDE / 2;
 						tp.y = floor(tp.y / (float)SQUARE_SIDE) * SQUARE_SIDE + SQUARE_SIDE / 2;
 						chain.queue(sf::Vector2f(tp), squareField.at(tp.x / SQUARE_SIDE).at(tp.y / SQUARE_SIDE).getRgbColor());
-
-						std::cout << "Drawing started!\n";
+					}
 				}
 			} else if (event.type == sf::Event::MouseButtonReleased) {
-				if (event.mouseButton.button == sf::Mouse::Button::Left) {
-					state = FieldState::Committing;
+				if (event.mouseButton.button == sf::Mouse::Left) {
+					if (state == FieldState::Drawing) {
+						state = FieldState::Committing;
+					}
 				}
 			}
+
 			break;
-		}
+		default:
+			break;
 	}
 }
 
 void Field::logic(sf::RenderWindow& window) {
-	chain.logic();
-
 	switch (state) {
 		case FieldState::Idling:
 			// Would be suprised if there would be code here...
 			break;
 		case FieldState::Drawing:
-			/*
-			if (pointerChanged) {
-				pointerChanged = false;
-				if (points.size() < 3) {
-					sf::Vector2i p = points.at(points.size() - 1);
-					chain.push(sf::Vector2f(p * SQUARE_SIDE) + sf::Vector2f(SQUARE_SIDE / 2, SQUARE_SIDE / 2), squareField.at(p.x).at(p.y).getRgbColor());
-					squareField.at(p.x).at(p.y).stage();
-				} else {
-					int i = points.size() - 1;
-					
-					if (points.at(i) == points.at(i - 2)) {
-						// Player took a step back
-						squareField.at(points.at(i - 1).x).at(points.at(i - 1).y).remove();
-						chain.pop();
-						points.pop_back();
-						points.pop_back();
-					} else {
-						// Player advanced one step
-						sf::Vector2i p = points.at(points.size() - 1);
-						chain.push(sf::Vector2f(p * SQUARE_SIDE) + sf::Vector2f(SQUARE_SIDE / 2, SQUARE_SIDE / 2), squareField.at(p.x).at(p.y).getRgbColor());
-						squareField.at(p.x).at(p.y).stage();
-					}
-				}
-			}
-			*/
+			// There should be some code here though!
 			break;
 		case FieldState::Committing:
-			// TODO: Make committing a trajectory possible
+			// TODO: Score
+
+			chain.commit();
+			state = FieldState::Idling;
+			std::cout << "Committing done\n";
 			break;
 		default:
 			std::cout << "Invalid state @ Field::logic()\n";
@@ -152,6 +122,8 @@ void Field::logic(sf::RenderWindow& window) {
 			squareField.at(x).at(y).logic(window);
 		}
 	}
+
+	chain.logic();
 }
 
 void Field::draw(sf::RenderTarget& target, sf::RenderStates states) const {

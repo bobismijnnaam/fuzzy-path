@@ -4,10 +4,12 @@
 
 // Includes I didn't make myself 
 #include <iostream>
+#include <cmath>
 #include "SFML/Graphics.hpp"
 
  // Includes I did make myself 
 #include "Chain.hpp"
+#include "constants.hpp"
 #include "functions.hpp"
 
 Chain::Chain() {
@@ -27,7 +29,7 @@ void Chain::push(sf::Vector2f point, sf::Color pointColor) {
 		points.push_back(sf::Vertex(point, invertColor(pointColor)));
 	}
 
-	pointChain.push_back(sf::Vector2i(point));
+	pointChain.push_back(sf::Vector2i(point) / SQUARE_SIDE);
 }
 
 void Chain::push(sf::Vertex point) {
@@ -38,7 +40,7 @@ void Chain::push(sf::Vertex point) {
 		points.push_back(point);
 	}
 	
-	pointChain.push_back(sf::Vector2i(point.position));
+	pointChain.push_back(sf::Vector2i(point.position) / SQUARE_SIDE);
 }
 
 void Chain::pop() {
@@ -50,7 +52,7 @@ void Chain::pop() {
 		// Pop a whole line segment! :D
 		points.pop_back();
 		points.pop_back();
-		// Why? For the glory of satan ofcourse!
+		// Why? For the glory of Satan ofcourse!
 	} else {
 		std::cout << "Tried to pop from empty stack @ Chain::pop()\n";
 	}
@@ -58,26 +60,78 @@ void Chain::pop() {
 	pointChain.pop_back();
 }
 
-bool Chain::queue(sf::Vector2f point, sf::Color pointColor) { 
-	// TODO: Handle diagonal line drawing. Yes, it happens! T_T
+QueueMessage Chain::queue(sf::Vector2f point, sf::Color pointColor) { 
 	// TODO: Make sure that you can't travel over a point that you have passed,
 		// Unless it is the previous point (that should be added to the list)
-	if (points.size() < 3) {
-		push(point, pointColor);
-		return true;
-	} else {
-		int i = points.size() - 1;
-		
-		if (point == points.at(i - 2).position) {
-			// Player took a step back
-			pop();
-		} else {
-			// Player advanced one step
-			push(point, pointColor);
-		}
+	// TODO: Committing
 
-		return true;
+	int dx, dy;
+	if (pointChain.size() == 0) {
+		dx = 0;
+		dy = 0;
+	} else {
+		dx = floor(point.x / SQUARE_SIDE) - pointChain.back().x;
+		dy = floor(point.y / SQUARE_SIDE) - pointChain.back().y;
 	}
+
+	bool alreadyAdded = containsPoint(sf::Vector2i(point) / SQUARE_SIDE);
+
+	// std::cout << dx << " | " << dy << " | " << pointChain.size() << ";\n";
+
+	if (abs(dx) > 1 || abs(dy) > 1 || (abs(dx) == 1 && abs(dy) == 1)) {
+		// std::cout << "Violation\n";
+		return QueueMessage::Violation;
+	} else {
+		if (pointChain.size() < 2) {
+			if (!alreadyAdded) {
+				push(point, pointColor);
+				// std::cout << "Succes\n";
+				return QueueMessage::Success;
+			} else {
+				// std::cout << "Failure\n";
+				return QueueMessage::Failure;
+			}
+		} else if (pointChain.size() == 2) {
+			if (sf::Vector2i(point) / SQUARE_SIDE == pointChain.at(0)) {
+				pop();
+				// std::cout << "Rewind\n";
+				return QueueMessage::Rewind;
+			} else if (!alreadyAdded) {
+				push(point, pointColor);
+				// std::cout << "Success\n";
+				return QueueMessage::Success;
+			} else {
+				// std::cout << "Failure\n";
+				return QueueMessage::Failure;
+			}
+		} else if (pointChain.size() > 2) {
+			if (sf::Vector2i(point) / SQUARE_SIDE == pointChain.at(pointChain.size() - 2)) {
+				// Player took a step back
+				pop();
+				// std::cout << "Rewind\n";
+				return QueueMessage::Rewind;
+			} else if (!alreadyAdded) {
+				// Player advanced one step
+				push(point, pointColor);
+				// std::cout << "Success\n";
+				return QueueMessage::Success;
+			} else if (sf::Vector2i(point) / SQUARE_SIDE == pointChain.back()) {
+				// std::cout << "Failure\n";
+				return QueueMessage::Failure;
+			} else {
+				// std::cout << "Violation\n";
+				return QueueMessage::Violation;
+			}
+		}
+	}
+
+	// std::cout << "Failure\n";
+	return QueueMessage::Failure;
+}
+
+void Chain::commit() {
+	points.clear();
+	pointChain.clear();
 }
 
 void Chain::logic() {
@@ -103,6 +157,20 @@ int Chain::getChainLength() {
 	}
 }
 
+std::vector<sf::Vector2i> Chain::getChain() {
+	return pointChain;
+}
+
 int Chain::getArrayLength() {
 	return points.size();
+}
+
+bool Chain::containsPoint(sf::Vector2i testPoint) {
+	for (sf::Vector2i p : pointChain) {
+		if (testPoint == p) {
+			return true;
+		}
+	}
+
+	return false;
 }

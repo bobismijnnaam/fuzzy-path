@@ -1,5 +1,5 @@
 # Uncomment to enable debug!
-# CFLAGS += -g
+CFLAGS += -g
 CFLAGS += -Wall
 
 !cxx = |> g++ -c %f -o %o $(CFLAGS) |> obj\%B.o
