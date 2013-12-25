@@ -60,6 +60,7 @@ void Square::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 	target.draw(squareShape, states);
 }
 
+// TODO: When staged, square gets marked with it's position in the current chain
 void Square::stage() {
 	switch (color) {
 		case SquareColor::Black:

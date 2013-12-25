@@ -44,8 +44,8 @@ private:
 	sf::Vector2i size;
 	std::vector<std::vector<Square>> squareField;
 
-	std::vector<sf::Vector2i> points;
-	bool pointerChanged;
+	// std::vector<sf::Vector2i> points;
+	// bool pointerChanged;
 
 	Chain chain;
 	

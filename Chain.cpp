@@ -25,7 +25,20 @@ void Chain::push(sf::Vector2f point, sf::Color pointColor) {
 		// Pushes end of last line and new point to extend the line segment
 		points.push_back(points.at(points.size() - 1));
 		points.push_back(sf::Vertex(point, invertColor(pointColor)));
-	}	
+	}
+
+	pointChain.push_back(sf::Vector2i(point));
+}
+
+void Chain::push(sf::Vertex point) {
+	if (points.size() <= 1) {
+		points.push_back(point);
+	} else {
+		points.push_back(points.at(points.size() - 1));
+		points.push_back(point);
+	}
+	
+	pointChain.push_back(sf::Vector2i(point.position));
 }
 
 void Chain::pop() {
@@ -41,10 +54,38 @@ void Chain::pop() {
 	} else {
 		std::cout << "Tried to pop from empty stack @ Chain::pop()\n";
 	}
+
+	pointChain.pop_back();
+}
+
+bool Chain::queue(sf::Vector2f point, sf::Color pointColor) { 
+	// TODO: Handle diagonal line drawing. Yes, it happens! T_T
+	// TODO: Make sure that you can't travel over a point that you have passed,
+		// Unless it is the previous point (that should be added to the list)
+	if (points.size() < 3) {
+		push(point, pointColor);
+		return true;
+	} else {
+		int i = points.size() - 1;
+		
+		if (point == points.at(i - 2).position) {
+			// Player took a step back
+			pop();
+		} else {
+			// Player advanced one step
+			push(point, pointColor);
+		}
+
+		return true;
+	}
+}
+
+void Chain::logic() {
+
 }
 
 void Chain::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-	if (points.size() >= 2) {
+	if (points.size() > 1) {
 		target.draw(&points[0], points.size(), sf::Lines, states);
 	}
 }

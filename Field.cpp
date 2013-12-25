@@ -25,7 +25,7 @@ Field::Field(sf::Vector2i inputSize, InputMethod preferredMethod) :
 
 	inputMethod = preferredMethod;
 
-	pointerChanged = false;
+	// pointerChanged = false;
 
 	fieldView.setViewport(sf::FloatRect(0.125f, 0.125f, 0.75f, 0.75f));
 
@@ -59,14 +59,15 @@ void Field::events(sf::Event event, sf::RenderWindow& window) {
 						if (!(inRange(tp.x, 0, SQUARE_SIDE * size.x) && inRange(tp.y, 0, SQUARE_SIDE * size.y))) {
 							state = FieldState::Committing;
 						} else {
-							tp.x = floor(tp.x / (float)SQUARE_SIDE);
-							tp.y = floor(tp.y / (float)SQUARE_SIDE);
-							// TODO: Make sure that you can't travel over a point that you have passed,
-							// Unless it is the previous point (that should be added to the list)
-							if (tp != points.at(points.size() - 1)) {
-								pointerChanged = true;
-								points.push_back(tp);
-							}
+							tp.x = floor(tp.x / (float)SQUARE_SIDE) * SQUARE_SIDE + SQUARE_SIDE / 2;
+							tp.y = floor(tp.y / (float)SQUARE_SIDE) * SQUARE_SIDE + SQUARE_SIDE / 2;
+
+							chain.queue(sf::Vector2f(tp), squareField.at(tp.x / SQUARE_SIDE).at(tp.y / SQUARE_SIDE).getRgbColor());
+							
+							// if (tp != points.at(points.size() - 1)) {
+							// 	pointerChanged = true;
+							// 	points.push_back(tp);
+							// }
 						}
 						break;
 					default:
@@ -76,7 +77,7 @@ void Field::events(sf::Event event, sf::RenderWindow& window) {
 				// std::cout << "Mousemove\n";
 			} else if (event.type == sf::Event::MouseButtonPressed) {
 				if (event.mouseButton.button == sf::Mouse::Button::Left) {
-					tp = sf::Vector2i(event.mouseButton.x, event.mouseButton.y);
+					tp = sf::Vector2i(event.mouseButton.x, event.mouseButton.y);	
 					tp = sf::Vector2i(window.mapPixelToCoords(tp, fieldView));
 
 					std::cout << event.mouseButton.x << " | " << event.mouseButton.y << ";\n";
@@ -84,9 +85,13 @@ void Field::events(sf::Event event, sf::RenderWindow& window) {
 
 					if (inRange(tp.x, 0, SQUARE_SIDE * size.x) && inRange(tp.y, 0, SQUARE_SIDE * size.y)) {
 						state = FieldState::Drawing;
-						pointerChanged = true;
+						// pointerChanged = true;
 
-						points.push_back( sf::Vector2i( floor( tp.x / (float)SQUARE_SIDE ), floor( tp.y / (float)SQUARE_SIDE ) ) );
+						// points.push_back( sf::Vector2i( floor( tp.x / (float)SQUARE_SIDE ), floor( tp.y / (float)SQUARE_SIDE ) ) );
+
+						tp.x = floor(tp.x / (float)SQUARE_SIDE) * SQUARE_SIDE + SQUARE_SIDE / 2;
+						tp.y = floor(tp.y / (float)SQUARE_SIDE) * SQUARE_SIDE + SQUARE_SIDE / 2;
+						chain.queue(sf::Vector2f(tp), squareField.at(tp.x / SQUARE_SIDE).at(tp.y / SQUARE_SIDE).getRgbColor());
 
 						std::cout << "Drawing started!\n";
 				}
@@ -101,12 +106,14 @@ void Field::events(sf::Event event, sf::RenderWindow& window) {
 }
 
 void Field::logic(sf::RenderWindow& window) {
+	chain.logic();
+
 	switch (state) {
 		case FieldState::Idling:
 			// Would be suprised if there would be code here...
 			break;
 		case FieldState::Drawing:
-			// TODO: Handle diagonal line drawing. Yes, it happens! T_T
+			/*
 			if (pointerChanged) {
 				pointerChanged = false;
 				if (points.size() < 3) {
@@ -130,6 +137,7 @@ void Field::logic(sf::RenderWindow& window) {
 					}
 				}
 			}
+			*/
 			break;
 		case FieldState::Committing:
 			// TODO: Make committing a trajectory possible
@@ -155,13 +163,6 @@ void Field::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 			target.draw(squareField.at(x).at(y), states);
 		}
 	}
-
-	/*
-	sf::RectangleShape pointerPlace(sf::Vector2f(SQUARE_SIDE, SQUARE_SIDE));
-	pointerPlace.setPosition(sf::Vector2f(pointer * SQUARE_SIDE));
-	pointerPlace.setFillColor(sf::Color::Red);
-	target.draw(pointerPlace, states);
-	*/
 
 	target.draw(chain, states);
 

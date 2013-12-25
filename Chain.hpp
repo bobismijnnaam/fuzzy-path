@@ -17,8 +17,11 @@ public:
 	~Chain();
 
 	void push(sf::Vector2f point, sf::Color pointColor);
+	void push(sf::Vertex point);
 	void pop();
+	bool queue(sf::Vector2f point, sf::Color pointColor);
 
+	void logic();
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
 	int getChainScore();
@@ -27,7 +30,7 @@ public:
 
 private:
 	std::vector<sf::Vertex> points;
-
+	std::vector<sf::Vector2i> pointChain;
 };
 
 #endif
