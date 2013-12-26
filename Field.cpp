@@ -28,7 +28,7 @@ Field::Field(sf::Vector2i inputSize, InputMethod preferredMethod) :
 
 	// pointerChanged = false;
 
-	fieldView.setViewport(sf::FloatRect(0.125f, 0.125f, 0.75f, 0.75f));
+	fieldView.setViewport(sf::FloatRect((SCR_W - FIELD_SIDE) / (float)(2 * SCR_W), (SCR_H - FIELD_SIDE) / (float)(2 * SCR_H), FIELD_SIDE / (float)SCR_W, FIELD_SIDE / (float)SCR_H));
 
 	state = FieldState::Idling;
 

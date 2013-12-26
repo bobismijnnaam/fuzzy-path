@@ -10,15 +10,21 @@
 #include "Randomizer.hpp"
 #include "Square.hpp" 
 
+sf::Color Square::Blue = sf::Color(0, 102, 213, 255);
+sf::Color Square::Orange = sf::Color(231, 127, 0, 255);
+
+sf::Color Square::High = Square::Orange;
+sf::Color Square::Low = Square::Blue;
+
 Square::Square(sf::Vector2i inputPosition) {
 	position = inputPosition;
 
 	if(Randomizer::getRange(0, 1)) {
 		color = SquareColor::White;
-		rgbColor = sf::Color(255, 255, 255, 255);
+		rgbColor = Square::High;
 	} else {
 		color = SquareColor::Black;
-		rgbColor = sf::Color(0, 0, 0, 255);
+		rgbColor = Square::Low;
 	}
 
 	state = SquareState::Usable;
@@ -100,10 +106,13 @@ void Square::commit(SquareColor newColor) {
 
 	switch (color) {
 		case SquareColor::White:
-			rgbColor = sf::Color::White;
+			rgbColor = Square::High;
 			break;
 		case SquareColor::Black:
-			rgbColor = sf::Color::Black;
+			rgbColor = Square::Low ;
+			break;
+		default:
+			rgbColor = sf::Color::Red;
 			break;
 	}
 
@@ -127,6 +136,9 @@ SquareColor Square::getNormalizedColor() {
 		case SquareColor::Black:
 		case SquareColor::LowerGrey:
 			return SquareColor::Black;
+			break;
+		default:
+			return SquareColor::UpperGrey;
 			break;
 	}
 }

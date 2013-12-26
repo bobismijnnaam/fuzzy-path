@@ -40,6 +40,11 @@ public:
 	SquareColor getNormalizedColor();
 	sf::Color getRgbColor();
 
+	static sf::Color Blue;
+	static sf::Color Orange;
+	static sf::Color High;
+	static sf::Color Low;
+
 private:
 	SquareColor color;
 	SquareState state;
