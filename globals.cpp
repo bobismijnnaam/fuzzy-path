@@ -8,3 +8,6 @@
 #include "globals.hpp"
 
 GameMan* gm = NULL;
+
+int previousGameScore = -1;
+bool firstTime = true;

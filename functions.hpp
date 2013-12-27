@@ -7,6 +7,8 @@
 
 // Includes I didn't make myself
 #include "SFML/Graphics.hpp"
+#include <string>
+#include <sstream>
 
  // Includes I did make myself
 
@@ -16,6 +18,12 @@ bool inRange(T v, T min, T max) {
 	return v >= min && v < max;
 }
 
+// Inverts color
 sf::Color invertColor(sf::Color i);
+
+// Centers sf::Text instance
+void centerAlignText(sf::Text& t);
+
+std::string itos(int i);
 
 #endif

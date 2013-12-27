@@ -22,6 +22,13 @@ public:
 
 private:
 	Field field;
+
+	sf::Font mainFont;
+
+	sf::Text whitesLeftText;
+	sf::Text blacksLeftText;
+	sf::Text scoreText;
+	int score;
 };
 
 #endif

@@ -37,6 +37,7 @@ public:
 	int getPreviousTrajectoryScore();
 	int getRemainingBlack();
 	int getRemainingWhite();
+	bool isGameOver();
 
 	Square& at(sf::Vector2i p);
 
@@ -59,7 +60,10 @@ private:
 
 	int whites;
 	int blacks;
-	int total;
+	int latestScore;
+	int previousScore;
+	bool newScore;
+	bool gameOver;
 };
 
 #endif

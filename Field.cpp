@@ -34,7 +34,9 @@ Field::Field(sf::Vector2i inputSize, InputMethod preferredMethod) :
 
 	whites = 100;
 	blacks = 100;
-	total = 0;
+	latestScore = 0;
+	newScore = false;
+	gameOver = false;
 }
 
 Field::~Field() {
@@ -121,10 +123,10 @@ void Field::logic(sf::RenderWindow& window) {
 		case FieldState::Committing:
 			pointChain = chain.getChain();
 			if (pointChain.size() > 1) {
-				subtotal = 1;
+				subtotal = 0;
 				
-				previousColor = at(pointChain.at(0)).getNormalizedColor();
-				for (uint32_t i = 1; i < pointChain.size(); ++i) {
+				previousColor = at(pointChain.at(0)).getNormalizedColor() == SquareColor::White ? SquareColor::Black : SquareColor::White;
+				for (uint32_t i = 0; i < pointChain.size(); ++i) {
 					if (previousColor != at(pointChain.at(i)).getNormalizedColor()) {
 						subtotal += i + 1;
 						previousColor = at(pointChain.at(i)).getNormalizedColor();
@@ -133,7 +135,7 @@ void Field::logic(sf::RenderWindow& window) {
 					}
 
 					if (blacks == 0 && whites == 0) {
-						// GAME ENDS B*TCH
+
 					} else if (blacks == 0) {
 						tc = SquareColor::White;
 						--whites;
@@ -151,13 +153,18 @@ void Field::logic(sf::RenderWindow& window) {
 					at(pointChain.at(i)).commit(tc);
 				}
 
-				total += subtotal;
+				if (blacks == 0 && whites == 0) {
+					// GAME ENDS B*TCH
+					gameOver = true;
+				}
+
+				previousScore = latestScore;
+				latestScore = subtotal;
+				newScore = true;
 			}
 
 			chain.commit();
 			state = FieldState::Idling;
-			
-			std::cout << "Score: " << total << " | Subtotal = " << subtotal << " | w/b = " << whites << "/" << blacks << "\n";
 			break;
 		default:
 			std::cout << "Invalid state @ Field::logic()\n";
@@ -189,23 +196,28 @@ void Field::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 }
 
 int Field::getTrajectoryScore() {
-	return 0;
+	newScore = false;
+	return latestScore;
 }
 
 bool Field::isTrajectoryFinished() {
-	return false;
+	return newScore;
 }
 
 int Field::getPreviousTrajectoryScore() {
-	return 0;
+	return previousScore;
 }
 
 int Field::getRemainingBlack() {
-	return 0;
+	return blacks;
 }
 
 int Field::getRemainingWhite() {
-	return 0;
+	return whites;
+}
+
+bool Field::isGameOver() {
+	return gameOver;
 }
 
 Square& Field::at(sf::Vector2i p) {

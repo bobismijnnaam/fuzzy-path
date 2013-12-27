@@ -7,6 +7,7 @@
 
 // Includes I didn't make myself
 
+
  // Includes I did make myself
 #include "Gamestate.hpp"
 
@@ -20,7 +21,9 @@ public:
     int render(sf::RenderWindow& window);
 
 private:
-
+	sf::Font mainFont;
+	sf::Text playText;
+	sf::Text scoreText;
 };
 
 #endif

@@ -17,7 +17,7 @@ int main() {
 
     sf::RenderWindow window(sf::VideoMode(SCR_W, SCR_H), "fuzzy-path");
 
-    gm = new GameMan(STATE_GAME);
+    gm = new GameMan(STATE_MENU);
 	
 	sf::Clock timelord;
 	sf::Time minion;

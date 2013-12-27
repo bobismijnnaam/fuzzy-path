@@ -1,5 +1,6 @@
 # Uncomment to enable debug!
 CFLAGS += -g
 CFLAGS += -Wall
+CFLAGS += -std=c++11
 
 !cxx = |> g++ -c %f -o %o $(CFLAGS) |> obj\%B.o

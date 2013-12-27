@@ -12,4 +12,7 @@
 
 extern GameMan* gm;
 
+extern int previousGameScore;
+extern bool firstTime;
+
 #endif
